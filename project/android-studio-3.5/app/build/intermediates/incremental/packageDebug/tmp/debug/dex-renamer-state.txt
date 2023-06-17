@@ -1,0 +1,4 @@
+#Sat Jun 17 11:48:53 CEST 2023
+base.0=C\:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\build\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
