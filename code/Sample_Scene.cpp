@@ -1,232 +1,268 @@
 /*
  * SAMPLE SCENE
- * Copyright © 2021+ Jonatan David Vargas REvollo
- *
+ * Copyright © 2023+ Jonatan David vargas Revollo
  * Distributed under the Boost Software License, version  1.0
  * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
  *
- * jontanvargas777@gmail.com
+ * angel.rodriguez@esne.edu
  */
 
 #include "Sample_Scene.hpp"
+#include <basics/Application>
 #include <basics/Canvas>
-#include <basics/Accelerometer>
+#include <basics/Display>
 #include <basics/Director>
 #include <basics/Log>
-#include <basics/Scaling>
-#include <basics/Rotation>
-#include <basics/Translation>
-
+#include <basics/Window>
+#include <iomanip>
 #include <cstdlib>
+#include <fstream>
+#include <basics/Accelerometer>
+#include <basics/Text_Layout>
+#include <random>
 
 using namespace basics;
 using namespace std;
 
-
 namespace example
 {
-    constexpr unsigned Sample_Scene::number_of_buildings;
-    constexpr unsigned Sample_Scene::number_of_colors;
-    constexpr float    Sample_Scene::banana_speed_scale;
-    constexpr float    Sample_Scene::gravity_force;
-
-    constexpr float    Sample_Scene::Building::window_width;
-    constexpr float    Sample_Scene::Building::window_height;
-    constexpr float    Sample_Scene::Building::window_step_x;
-    constexpr float    Sample_Scene::Building::window_step_y;
-
-    const Vector3f Sample_Scene::predefined_colors[] =
-            {
-                    { 0.5f, 1.0f, 1.0f },
-                    { 1.0f, 0.5f, 1.0f },
-                    // { 0.5f, 0.5f, 0.5f },
-            };
-
-    Sample_Scene::Building::Building(float left_x,float left_y, float width, int min_height, int max_height)
-    {
-        position    = {  float(0 + rand () % (1080 - 200 )), left_y };
-        size.width  = width;
-        size.height = 40;
-
-        left_x = float(min_height + rand () % (max_height - min_height));
-        color       = predefined_colors[ rand () % number_of_colors];
-
-        for (float y = size.height - window_step_y; y > -window_step_y; y -= window_step_y)
-        {
-            for (float x = left_x + window_step_x; x < left_x + size.width - window_step_x; x += window_step_x)
-            {
-                windows.emplace_back
-                        (
-                                Vector2f{ x, y },
-                                Size2f{ window_width, window_height },
-                                rand () % 2 == 0 ? Vector3f{ 0, 0, 0 } : Vector3f{ 1, 1, 1 }
-                        );
-            }
-        }
-    }
 
     Sample_Scene::Sample_Scene()
     {
+        status        = UNINITIALIZED;
         canvas_width  = 1080;
-        canvas_height =  1920;
+        canvas_height = 1920;
+        speed         = 100;
+        score         = 0;
+        timer         = 0;
+
     }
 
     bool Sample_Scene::initialize ()
     {
-        state     = LOADING;
         suspended = false;
-        x         = 365;
-        y         = 360;
-        MAX_SPEED_Y =500;
-        speed_Y = 300;
-        speed_X = 365;
-        impuls = 20;
 
-        altura  = (rand()% 200) + 200 ;
-        altura1 = (rand()% 200) + altura;
-        altura2 = (rand()% 200)+ altura1;
-        altura3 =(rand()% 200) +altura2;
-        altura4 = (rand()% 200)+ altura3;
-        altura5 = (rand()% 200) +altura4;
-        posXrandom  = (rand()% 520) + 100 ;
-        posXrandom1 = (rand()% 520) +100 ;
-        posXrandom2 = (rand()% 520)+100;
-        posXrandom3 =(rand()% 520)+100;
-        posXrandom4 = (rand()% 520) +100;
-        posXrandom5 = (rand()% 520) +100;
+        display.set_prevent_sleep (true);
+
         return true;
-        graviton = true;
-        diferencia =0;
+    }
 
+    void Sample_Scene::finalize ()
+    {
+        display.set_prevent_sleep (false);
     }
 
     void Sample_Scene::suspend ()
     {
         suspended = true;
-        Accelerometer * accelerometer = Accelerometer::get_instance ();
 
-        if (accelerometer) accelerometer->switch_off ();
+        display.set_prevent_sleep (false);
+        //accelerometer
+        Accelerometer* accelerometer = Accelerometer::get_instance();
+
+        if (accelerometer) accelerometer->switch_off();
     }
 
     void Sample_Scene::resume ()
     {
         suspended = false;
-        Accelerometer * accelerometer = Accelerometer::get_instance ();
 
-        if (accelerometer) accelerometer->switch_on ();
+        display.set_prevent_sleep (true);
+        //accelerometer
+        Accelerometer* accelerometer = Accelerometer::get_instance();
+
+        if (accelerometer) accelerometer->switch_on();
     }
 
-    void Sample_Scene::handle (Event & event)
+    void Sample_Scene::handle (basics::Event & event)
     {
-        if (state == RUNNING)
-        {
-            switch (event.id)
+        if (!suspended && status == READY) switch (event.id)
             {
-                case ID(touch-started):
 
-                case ID(touch-moved):
+                case ID(touch-started):
+                {
+                    float x = *event[ID(x) ].as< var::Float > ();
+                    float y = *event[ID(y) ].as< var::Float > ();
+                    Jump = true;
+                    //Help
+                    if(squares[11]->contains({x,y}) &&squares[11]->is_visible())
                     {
-                        x = *event[ID(x)].as< var::Float > ();
-                        touch = true;
-                    break;
+                        visibleText = !visibleText;
                     }
+                }
+                    //restar game
+                    /*
+                        if (!playing && gameOver)
+                        {
+                           inicio();
+                        }
+                        */
+                    // El usuario toca la pantalla
+                case ID(touch-moved):
+                {
+                    float x = *event[ID(x) ].as< var::Float > ();
+                    float y = *event[ID(y) ].as< var::Float > ();
+
+                    if (squares[13]->contains({ x, y }) && !playing && squares[13]->is_visible())
+                    {
+                        Jump= true;
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            squares[i]->show();
+                        }
+                        squares[13]->hide();
+                        playing = true;
+                    }
+                    //active pause
+                    if (squares[9]->contains({ x, y }) && squares[9]->is_visible())
+                    {
+
+
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            squares[i]->hide();
+                        }
+                        playing = false;
+                        squares[10]->show();
+                        squares[11]->show();
+                    }
+                    //reanudar partida
+                    if (squares[10]->contains({ x, y }))
+                    {
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            squares[i]->show();
+                        }
+                        squares[10]->hide();
+                        squares[11]->hide();
+                        visibleText = false;
+                        playing = true;
+                    }
+
+                    /*
+                    for (auto square : squares)
+                    {
+                        // square->set_slice (square->contains ({ x, y }) ? ID(play-menu) : ID(blue-square));
+                    }
+*/
+                    break;
+                }
 
                 case ID(touch-ended):
                 {
-                    x = x;
-                    y = *event[ID(y)].as< var::Float > ();
-                    touch = false;
                     break;
                 }
             }
-        }
     }
 
-    void Sample_Scene::update (float time)
+    void Sample_Scene::update (float delta)
     {
-        Accelerometer * accelerometer = Accelerometer::get_instance ();
-        float timer = time;
-        if (accelerometer)
+        if (status == UNINITIALIZED)
         {
-            const Accelerometer::State & acceleration = accelerometer->get_state ();
-
-
-
-            x -= acceleration.x * 30.f  * speed * time;
-
+            if (load_images ()) create_sprites ();
         }
+        if(playing) {
 
-        if (isJumping)
-        {
-            y += time;
-        }
-        else
-        {
-            y -= time;
-        }
-        switch (state)
-        {
-            case LOADING: load ();     break;
-            case RUNNING: run  (time); break;
-        }
-        switch (status)
-        {
 
-            case PAUSED: {}
-                break;
-            case GAME_OVER:
+            Accelerometer *accelerometer = Accelerometer::get_instance();
+
+            if (accelerometer)
             {
-               // if (timer.get_elapsed_seconds () > 3) rebuild_scene ();
-            }
-                break;
-        }
+                const Accelerometer::State &acceleration = accelerometer->get_state();
+                // Obtener el valor de la aceleración en el eje X
+                float acceleration_x = acceleration.x;
 
+                // Modificar la posición del sprite "player" según el valor de la aceleración
+                postX = acceleration_x * - speed * delta, 0.f;
+                squares[0]->set_position_x(squares[0]->get_position_x() + postX);
+
+                //cambio de lados
+                if (squares[0]->get_position_x() > canvas_width) { squares[0]->set_position_x(0); }
+                if (squares[0]->get_position_x() < -squares[0]->get_width()) { squares[0]->set_position_x(canvas_width); }
+
+            }
+            //impacta
+            //Point2f playerLeft = Point2f( squares[0]->get_position_x() - squares[0]->get_width()*0.5f,squares[0]->get_position_y() - squares[0]->get_height()*0.5f);
+           // Point2f playerRight = Point2f( squares[0]->get_position_x() + squares[0]->get_width()*0.5f,squares[0]->get_position_y() - squares[0]->get_height()*0.5f);
+            Point2f playerLeft = Point2f(  squares[0]->get_left_x(),squares[0]->get_bottom_y());
+            Point2f playerRight = Point2f( squares[0]->get_right_x() ,squares[0]->get_bottom_y());
+
+            for (int i = 1; i < 9; ++i)
+            {
+                if (squares[i]->contains(playerLeft) || squares[i]->contains(playerRight))
+                {
+                   Jump = true;
+                }
+            }
+            if (squares[0]->get_position_y() > canvas_height *0.5f - 500) {
+                Jump = false;
+            }
+
+            //salto
+            if (Jump)
+            {
+                //update score
+
+                float y = squares[0]->get_position_y() + (30000 * delta);
+                squares[0]->set_position_y(y);
+                if (squares[0]->get_position_y() > canvas_height * 0.5f )
+                {
+                    score++;  // Inicializar la puntuación a cero
+                    Text_Layout sample_text(*font, L"Puntos: " + to_wstring(squares[0]->get_speed_y()));
+                }
+                //Down platform
+                for (int i = 1; i < 9; ++i) {
+                    squares[i]->set_position_y(squares[i]->get_position_y() - (3000 * delta));
+                    if (squares[i]->get_position_y() < 0) {
+
+                        squares[i]->set_position_y(canvas_height);
+
+                        //change platform position x with a random number
+                        float random_x = float(0 + rand() % (1080 - 200));
+                        squares[i]->set_position_x(random_x);
+                    }
+                }
+            }
+
+            if(!Jump )
+            {
+                squares[0]->set_position_y(squares[0]->get_position_y() - 1000 * delta);
+
+            }
+
+            if (!font) {
+                Graphics_Context::Accessor context = director.lock_graphics_context();
+
+                if (context) {
+                    font.reset(new Raster_Font("fonts/impact.fnt", context));
+                }
+            }
+            //best score
+            if (score > bestScore) {
+                bestScore = score;
+
+            }
+            //game-over
+            if (squares[0]->get_position_y() < 0)
+            {
+                for (int i = 0; i < 12; ++i)
+                {
+                    squares[i]-> hide ();
+                }
+                //muestra game-over
+                squares[12]->show();
+                score = 0;
+                timer++;
+                if (timer > 80) { restart(); }
+            }
+        }
     }
 
     void Sample_Scene::render (basics::Graphics_Context::Accessor & context)
     {
-        if (!suspended && state == RUNNING)
+        if (!suspended)
         {
             Canvas * canvas = context->get_renderer< Canvas > (ID(canvas));
-
-            if (speed_Y <= 50)//jumper toca plataforma
-            {
-                graviton = false;
-                impuls = 30;
-
-            }
-            if(graviton == false)
-            {
-                impuls--;
-                speed_Y += ( impuls  + graviton - 1 );
-
-            }
-            if (speed_Y >= MAX_SPEED_Y)
-            {
-                speed_Y = MAX_SPEED_Y;
-                graviton = true;
-                diferencia -= graviton  ;
-            }
-            Accelerometer * accelerometer = Accelerometer::get_instance ();
-
-            if (accelerometer)
-            {
-                const Accelerometer::State & acceleration = accelerometer->get_state ();
-
-                speed_X -= acceleration.x * 30.f  * speed;
-
-            }
-
-//diferencia -= (graviton - impuls) ;
-           // Accelerometer::State s = Accelerometer::get_instance()->get_state();
-
-
-
-            if (graviton == true )
-            {
-                speed_Y -= GRAVITY;
-
-            }
 
             if (!canvas)
             {
@@ -235,329 +271,179 @@ namespace example
 
             if (canvas)
             {
-                canvas->clear        ();
-                canvas->set_color    (1, 1, 1);
-                canvas->draw_point   ({ 360, 360 });
-                canvas->draw_segment ({   0,   0 }, { 1280, 720 });
-                canvas->draw_segment ({   0, 720 }, { 1280,   0 });
-
-
-                if (fondo)
-                {
-                    canvas->fill_rectangle ({ canvas_width/2, canvas_height/2  }, { 2000, 2000}, fondo.get ());
-                }
-                for (int i = 0; i > 10 -1 ; ++i)
-                {
-                    Plat[i].platX = (rand()%520) + 200;
-                    Plat[i].platY = rand()%500;
-
-                }
-                if(altura1 -altura < 50)
-                {
-                    altura1 += 50;
-                }
-                if(altura2 -altura1 < 50)
-                {
-                    altura2 += 50;
-                }
-                if(altura3 -altura2 < 50)
-                {
-                    altura3 += 50;
-                }
-                if(altura4 - altura3 < 50)
-                {
-                    altura4 += 50;
-                }
-                if(altura5 -altura4 < 50)
-                {
-                    altura5 += 50;
-                }
-if(speed_X < posXrandom + 100 && speed_X > posXrandom -100 )
-{
-    diferencia = 0;
-}
-
-
-diferencia += 2;
-                if (plataforma)
-                {
-                  //  for (int i = 0; i < 10 ; ++i) {
-
-                  //  }
-                    canvas->fill_rectangle ({ posXrandom, altura - diferencia }, { 200, 50 }, plataforma.get ());
-                    canvas->fill_rectangle ({ posXrandom1, altura1 - diferencia}, { 200, 50 }, plataforma.get ());
-                    canvas->fill_rectangle ({ posXrandom2, altura2 - diferencia}, { 200, 50 }, plataforma.get ());
-                    canvas->fill_rectangle ({ posXrandom3, altura3 - diferencia}, { 200, 50 }, plataforma.get ());
-                    canvas->fill_rectangle ({ posXrandom4, altura4 - diferencia}, { 200, 50 }, plataforma.get ());
-                    canvas->fill_rectangle ({ posXrandom5, altura5 - diferencia}, { 200, 50 }, plataforma.get ());
-
-                }
-
-
-                if (isJumping)
-                {
-                    speed_Y += 1;
-                }
+                if (status == ERROR)
+                    canvas->set_clear_color (1, 0, 0);
                 else
-                {
-                    //y -= time;
-                }
-                if(altura - diferencia == speed_Y)
-                {
-                    speed_Y +=1;
-                }
+                    canvas->set_clear_color (1, 1, 1);
 
-                for (int i = 0; i <10 ; ++i)
+                canvas->clear ();
+
+                for (auto & sprite : sprites)
                 {
-                    if(plataforma)
+                    sprite->render (*canvas);
+                }
+//score
+                //score
+                if (font )
+                {
+                    if(playing)
                     {
-                      //  Vector2f position[i] = { Plat[i].platX,Plat[i].platY};
+                        Text_Layout sample_text(*font, L"Puntos: " + to_wstring(score));
+                        canvas->draw_text({10, canvas_height - 100}, sample_text, LEFT);
+
+                        Text_Layout bestScore_text(*font, L"Best Score " + to_wstring(bestScore));
+                        canvas->draw_text({10, canvas_height - 200}, bestScore_text, LEFT);
                     }
-                   // canvas
-                }
-                if(x > canvas_width/2 && touch)
-                {
-                    speed_X +=10;
-                    posJumperX=speed_X;
-                }
-                if(x < canvas_width/2 && touch)
-                {
-                    speed_X -=10;
-                    posJumperX=speed_X;
-                }
-                if(!touch)
-                {
-                    speed_X = posJumperX;
-                }
-                if(x == 365)
-                {
-                    speed_X = 365;
-                }
-                if(speed_X < 0)
-                {
-                    speed_X = canvas_width;
-                }
-                if(speed_X > canvas_width)
-                {
-                    speed_X = 0;
-                }
-                if (jumper)
-                {
-                    canvas->fill_rectangle ({ speed_X, speed_Y }, { 100, 100 }, jumper.get ());
-                }
-                if(altura < 0)
-                {
-                    altura  = (rand()% 200) + altura5 ;
-                }
-                if(altura1 < 0)
-                {
-                    altura1  = (rand()% 200) + altura ;
-                }
-                if(altura2 < 0)
-                {
-                    altura2  = (rand()% 200) + altura1 ;
-                }
-                if(altura3 < 0)
-                {
-                    altura3  = (rand()% 200) + altura2 ;
-                }
-                if(altura4 < 0)
-                {
-                    altura4  = (rand()% 200) + altura3 ;
-                }
-                if(altura5 < 0)
-                {
-                    altura5  = (rand()% 200) + altura4 ;
+
+
+                    //es necesario que el texto sea wstrign ademas para ponerlo la "L"para declararlo
+                     helpText = L"Los controles de juego son simples  \nte mueves al girar a los lados el movil \nsi te pasas sales al lado opuesto de la pantalla  \nsi subes por encima de la mitad de la pantalla \nsumas punto";
+                    if(visibleText)
+                    {
+                        Text_Layout helpLayout(*font, helpText);
+                        canvas->draw_text({canvas_width*0.01f, squares[11]->get_position_y() - squares[11]->get_height()}, helpLayout, LEFT);
+                    }
+
                 }
 
             }
         }
     }
 
-    void Sample_Scene::load ()
+    bool Sample_Scene::load_images ()
     {
-        if (!suspended)
-        {
-            Graphics_Context::Accessor context = director.lock_graphics_context ();
+        Graphics_Context::Accessor context = director.lock_graphics_context ();
 
-            if (context)
+        if (context)
+        {
+            texture = Texture_2D::create (ID(texture), context, "background.png");
+
+            if (texture)
             {
-                texture     = Texture_2D::create (ID(test), context, "test.png");
-                fondo       = Texture_2D::create (ID(test), context, "fondo.png");
-                jumper      = Texture_2D::create (ID(test), context, "Jumper.png");
-                plataforma  = Texture_2D::create (ID(test), context, "plataforma.png");
+                context->add (texture);
 
+                atlas = make_shared< Atlas > ("atlas.sprites", context);
 
-
-                if (texture)
-                {
-                    context->add (texture);
-
-                    state = RUNNING;
-                }
-                if (fondo)
-                {
-                    context->add (fondo);
-
-                    state = RUNNING;
-                }
-                if (jumper)
-                {
-                    context->add (jumper);
-
-                    state = RUNNING;
-                }
-                if (plataforma)
-                {
-                    context->add (plataforma);
-
-                    state = RUNNING;
-                }
+                status = atlas->good () ? READY : ERROR;
             }
+            else
+                status = ERROR;
         }
+
+        return status == READY;
     }
 
-    void Sample_Scene::run (float )
+    void Sample_Scene::create_sprites ()
     {
-    }
+        sprites.emplace_back (make_shared< Sprite > (texture.get ()));
 
-    void Sample_Scene::rebuild_scene ()
+
+        auto background = sprites.back ().get ();
+
+        background->set_size   ({ canvas_width, canvas_height });
+        background->set_anchor (BOTTOM | LEFT);
+
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(player)));
+        squares[0] = sprites.back ().get ();
+
+        for (int i = 1; i < 9 ; ++i)
+        {
+            sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(platform)));
+            squares[i] = sprites.back ().get ();
+        }
+
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(pause)));
+        squares[9] = sprites.back ().get ();
+
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(resume)));
+
+        squares[10] = sprites.back ().get ();
+
+    sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(help)));
+    squares[11] = sprites.back ().get ();
+
+    sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(game-over)));
+    squares[12] = sprites.back ().get ();
+    sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(play-menu)));
+    squares[13] = sprites.back ().get ();
+
+        Vector2f canvas_center{ canvas_width * .5f, canvas_height * .5f };
+
+        inicio();
+
+
+
+        //pause position
+        squares[9]->set_position( canvas_center);
+        squares[9]->set_scale    (2.00f);
+
+        //menu pause
+        squares[10]->set_position( canvas_center + Vector2f(0, squares[10]->get_height()));
+        squares[10]->set_scale    (2.00f);
+
+
+        //Button help
+        squares[11]->set_position( canvas_center - Vector2f(0, squares[11]->get_height()));
+        squares[11]->set_scale    (2.00f);
+
+        //game-over
+        squares[12]->set_position (canvas_center);
+        squares[12]->set_scale    (2.00f);
+
+        squares[13]->set_position (canvas_center);
+        squares[13]->set_scale    (8.00f);
+//posicion de los objetos se dan desde su centro
+        //plataformas
+        for (int i = 2; i < 9; ++i)
+        {
+            squares[i]->set_size(Size2f(300,50));
+            float random_x = float(0 + rand () % (1080 - 200 ));
+            squares[i]->set_position(Vector2f(random_x, 300 * i));
+        }
+
+        squares[9]->set_position( Vector2f(canvas_width - (squares[9]->get_width()*0.5f), canvas_height- (squares[9]->get_height()*0.5f)));
+
+
+        /*
+
+        squares[1]->set_position(Vector2f(canvas_width*0.5f, 100));
+        squares[1]->set_anchor   (BOTTOM | LEFT);
+        squares[1]->set_scale    (1.00f);
+        squares[2]->set_position (canvas_center + Vector2f{ -20.f, -20.f });
+        squares[2]->set_anchor   (TOP | RIGHT);
+        squares[2]->set_scale    (1.25f);
+        squares[3]->set_position (canvas_center + Vector2f{ -500.f, -20.f });
+        squares[3]->set_anchor   (TOP | LEFT);
+        squares[3]->set_scale    (1.50f);
+
+         */
+        // postY         = squares[0]->get_position_y() + 100;
+
+    }
+    void Sample_Scene::restart()
     {
-
-        background_boxes.clear ();
-        foreground_boxes.clear ();
-        updateable_sprites.clear ();
-        buildings.clear ();
-        holes.clear ();
-        //Jumpers.clear ();
-        banana.reset ();
-        sun.reset ();
-
-        float building_left_x     = 0.f;
-        float building_width      = float(canvas_width / number_of_buildings);
-
-        int   building_min_height = int(canvas_height) / 5;
-        int   building_max_height = int(canvas_height) * 3 / 4;
-        //float origen              =  float(building_min_height + rand () % (canvas_width - 10));
-        float building_left_y     = 0.f;
-
-
-        for (unsigned count = 0; count < number_of_buildings; ++count)
-        {
-            buildings.emplace_back (origen ,building_left_y + 50, building_width ,  building_min_height , building_max_height );
-
-            //origen = origen +1.f;
-            building_left_x += building_width + 10.f;
-            building_left_y += building_width + 100.f;
-        }
-
-        auto & building_left  = buildings[1];
-        auto & building_right = buildings[number_of_buildings - 2];
-
-
-
-
-        //  auto & building_left  = buildings[number_of_buildings - 2];
-        //   auto & building_right = buildings[1];
-
-        auto * Jumper_stand_slice       = atlas->get_slice (ID(Jumper-standing));
-        auto * Jumper_throw_left_slice  = atlas->get_slice (ID(Jumper-arm-up-1));
-        auto * Jumper_throw_right_slice = atlas->get_slice (ID(Jumper-arm-up-2));
-
-       /* Jumpers.emplace_back
-                (
-
-                        new Animated_Sprite
-                                (
-
-                                        { posJumperX - Jumper_stand_slice->width * 0.5f , posJumperY + 500 - gravity_force },
-                                        "stand",
-                                        Animated_Sprite::Animation_Set
-                                                {
-                                                        { "stand", { Jumper_stand_slice } },
-                                                        { "throw", { Jumper_throw_left_slice } },
-                                                        { "happy", { Jumper_throw_left_slice, Jumper_throw_right_slice } },
-                                                }
-                                )
-                );
-
-        Jumpers.emplace_back
-        (
-            new Animated_Sprite
-            (
-                { building_right.position[0] + building_width * 0.5f - Jumper_stand_slice->width * 0.5f, building_right.size[1] },
-                "stand",
-                 Animated_Sprite::Animation_Set
-                {
-                    { "stand", { Jumper_stand_slice } },
-                    { "throw", { Jumper_throw_right_slice } },
-                    { "happy", { Jumper_throw_right_slice, Jumper_throw_left_slice } },
-                }
-            )
-        );*/
-
-        auto * banana_keyframe_0_slice = atlas->get_slice (ID(banana-0));
-        auto * banana_keyframe_1_slice = atlas->get_slice (ID(banana-1));
-        auto * banana_keyframe_2_slice = atlas->get_slice (ID(banana-2));
-        auto * banana_keyframe_3_slice = atlas->get_slice (ID(banana-3));
-
-        banana = make_shared< Animated_Sprite >
-                (
-                        Vector2f{ 0.f, 0.f },
-                        "roll",
-                        Animated_Sprite::Animation_Set
-                                {
-                                        { "roll", { banana_keyframe_0_slice, banana_keyframe_1_slice, banana_keyframe_2_slice, banana_keyframe_3_slice } }
-                                }
-                );
-
-        banana->visible = false;
-
-        auto * sun_slice = atlas->get_slice (ID(sun));
-
-        sun = make_shared< Sprite >
-                (
-                        Vector2f{ (float(canvas_width) - sun_slice->width) * 0.5f, float(canvas_height * 4 / 5)  },
-                        Size2f{ sun_slice->width, sun_slice->height },
-                        *sun_slice
-                );
-
-        auto * game_over_slice = atlas->get_slice (ID(game-over));
-
-        game_over = make_shared< Sprite >
-                (
-                        Vector2f{ (float(canvas_width) - game_over_slice->width) * 0.5f, (float(canvas_height) - game_over_slice->height) * 0.5f },
-                        Size2f{ game_over_slice->width, game_over_slice->height },
-                        *game_over_slice
-                );
-
-        game_over->visible = false;
-
-        auto * explosion_slice = atlas->get_slice (ID(explosion));
-
-
-        for (auto & building : buildings)
-        {
-            background_boxes.push_back (&building);
-        }
-
-       // for (auto & Jumper : Jumpers )
-       // {
-      //      foreground_boxes.push_back (Jumper.get ());
-     //       updateable_sprites.push_back (Jumper.get ());
-      //  }
-
-        background_boxes.push_back (sun.get ());
-
-        foreground_boxes.push_back (banana.get ());
-        updateable_sprites.push_back (banana.get ());
-
-
-
-        foreground_boxes.push_back (game_over.get ());
-
-       state = RUNNING;
-
-
+            squares[13]-> show();
+            timer = 0;
+            inicio();
+            playing = false;
+        squares[12]-> hide ();
     }
+    void Sample_Scene::inicio()
+    {
+        Vector2f canvas_center{ canvas_width * .5f, canvas_height * .5f };
+        //player
+        squares[0]->set_position (canvas_center);
+        squares[1]->set_position (Vector2f(canvas_width*0.5f, 200 ));
+        squares[1]->set_size(Size2f(300,50));
+        //hace invisible
+        if(!playing)
+        {
+            for (int i = 0; i < 13; ++i)
+            {
+                squares[i]-> hide ();
+            }
+
+        }
+    }
+
 }
