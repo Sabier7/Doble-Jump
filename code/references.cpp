@@ -1,4 +1,4 @@
-﻿/*
+/*
  * REFERENCES
  * Copyright © 2019+ Ángel Rodríguez Ballesteros
  *
@@ -8,14 +8,12 @@
  * angel.rodriguez@esne.edu
  */
 
-#include <basics/Director>
-#include <basics/enable>
+#include <basics/Display>
 #include <basics/Graphics_Resource_Cache>
-#include <basics/Texture_2D>
-#include <basics/Window>
 #include <basics/opengles/Context>
 #include <basics/opengles/Canvas_ES2>
-#include <basics/opengles/OpenGL_ES2>
+#include <basics/Texture_2D>
+#include <basics/Window>
 
 using namespace basics;
 
@@ -30,6 +28,7 @@ void keep_links ()
     Window::get_window (0);
     Graphics_Resource_Cache cache;
     opengles::Context::create(window, &cache);
-    Canvas::Factory f = opengles::Canvas_ES2::create;
+    auto a = opengles::Canvas_ES2::create;
     Texture_2D::register_factory (0, 0);
+    display.set_prevent_sleep (false);
 }
