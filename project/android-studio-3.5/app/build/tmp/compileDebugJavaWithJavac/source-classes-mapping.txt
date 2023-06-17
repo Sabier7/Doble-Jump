@@ -1,0 +1,2 @@
+edu/esne/basicsexample/BuildConfig.java
+ edu.esne.basicsexample.BuildConfig

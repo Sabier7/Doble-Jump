@@ -1,0 +1,4 @@
+edu/esne/basicsexample/test/BuildConfig.java
+ edu.esne.basicsexample.test.BuildConfig
+edu/esne/basicsprojecttemplate/ExampleInstrumentedTest.java
+ edu.esne.basicsprojecttemplate.ExampleInstrumentedTest
