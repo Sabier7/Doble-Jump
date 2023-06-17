@@ -1,0 +1,19 @@
+ninja: Entering directory `C:\Users\jonat\OneDrive\Escritorio\3\project\android-studio-3.5\app\.cxx\cmake\debug\x86_64'
+[1/2] Building CXX object CMakeFiles/native.dir/C_/Users/jonat/OneDrive/Escritorio/3/code/Sample_Scene.cpp.o
+C:/Users/jonat/OneDrive/Escritorio/3/code/Sample_Scene.cpp:136:59: warning: expression result unused [-Wunused-value]
+                postX = acceleration_x * - speed * delta, 0.f;
+                                                          ^~~
+C:/Users/jonat/OneDrive/Escritorio/3/code/Sample_Scene.cpp:294:9: warning: array index 9 is past the end of the array (which contains 8 elements) [-Warray-bounds]
+        squares[9] = sprites.back ().get ();
+        ^       ~
+C:/Users/jonat/OneDrive/Escritorio/3/code/Sample_Scene.hpp:62:9: note: array 'squares' declared here
+        Sprite * squares[8];
+        ^
+C:/Users/jonat/OneDrive/Escritorio/3/code/Sample_Scene.cpp:298:9: warning: array index 10 is past the end of the array (which contains 8 elements) [-Warray-bounds]
+        squares[10] = sprites.back ().get ();
+        ^       ~~
+C:/Users/jonat/OneDrive/Escritorio/3/code/Sample_Scene.hpp:62:9: note: array 'squares' declared here
+        Sprite * squares[8];
+        ^
+3 warnings generated.
+[2/2] Linking CXX shared library ..\..\..\..\build\intermediates\cmake\debug\obj\x86_64\libnative.so

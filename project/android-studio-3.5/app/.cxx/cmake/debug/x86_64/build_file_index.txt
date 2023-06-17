@@ -1,0 +1,7 @@
+C:\Users\jonat\OneDrive\Escritorio\3\libraries\basics\projects\png\CMakeLists.txt
+C:\Users\jonat\OneDrive\Escritorio\3\project\android-studio-3.5\app\CMakeLists.txt
+C:\Users\jonat\OneDrive\Escritorio\3\libraries\basics\projects\base\CMakeLists.txt
+C:\Users\jonat\OneDrive\Escritorio\3\libraries\basics\projects\math\CMakeLists.txt
+C:\Users\jonat\OneDrive\Escritorio\3\libraries\basics\projects\audio\CMakeLists.txt
+C:\Users\jonat\OneDrive\Escritorio\3\libraries\basics\projects\gaming\CMakeLists.txt
+C:\Users\jonat\OneDrive\Escritorio\3\libraries\basics\projects\opengles\CMakeLists.txt

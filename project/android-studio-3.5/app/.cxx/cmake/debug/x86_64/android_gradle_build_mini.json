@@ -1,0 +1,99 @@
+{
+  "buildFiles": [
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\libraries\\basics\\projects\\png\\CMakeLists.txt",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\CMakeLists.txt",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\libraries\\basics\\projects\\base\\CMakeLists.txt",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\libraries\\basics\\projects\\math\\CMakeLists.txt",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\libraries\\basics\\projects\\audio\\CMakeLists.txt",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\libraries\\basics\\projects\\gaming\\CMakeLists.txt",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\libraries\\basics\\projects\\opengles\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+      "-C",
+      "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+    "-C",
+    "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "basics-opengles-Debug-x86_64": {
+      "artifactName": "basics-opengles",
+      "buildCommandComponents": [
+        "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+        "basics-opengles"
+      ],
+      "abi": "x86_64",
+      "output": "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64\\libbasics-opengles.a",
+      "runtimeFiles": []
+    },
+    "basics-gaming-Debug-x86_64": {
+      "artifactName": "basics-gaming",
+      "buildCommandComponents": [
+        "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+        "basics-gaming"
+      ],
+      "abi": "x86_64",
+      "output": "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64\\libbasics-gaming.a",
+      "runtimeFiles": []
+    },
+    "basics-png-Debug-x86_64": {
+      "artifactName": "basics-png",
+      "buildCommandComponents": [
+        "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+        "basics-png"
+      ],
+      "abi": "x86_64",
+      "output": "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64\\libbasics-png.a",
+      "runtimeFiles": []
+    },
+    "basics-base-Debug-x86_64": {
+      "artifactName": "basics-base",
+      "buildCommandComponents": [
+        "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+        "basics-base"
+      ],
+      "abi": "x86_64",
+      "output": "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64\\libbasics-base.a",
+      "runtimeFiles": []
+    },
+    "basics-audio-Debug-x86_64": {
+      "artifactName": "basics-audio",
+      "buildCommandComponents": [
+        "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+        "basics-audio"
+      ],
+      "abi": "x86_64",
+      "output": "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64\\libbasics-audio.a",
+      "runtimeFiles": []
+    },
+    "native-Debug-x86_64": {
+      "artifactName": "native",
+      "buildCommandComponents": [
+        "C:\\Users\\jonat\\AppData\\Local\\Android\\Sdk\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\.cxx\\cmake\\debug\\x86_64",
+        "native"
+      ],
+      "abi": "x86_64",
+      "output": "C:\\Users\\jonat\\OneDrive\\Escritorio\\3\\project\\android-studio-3.5\\app\\build\\intermediates\\cmake\\debug\\obj\\x86_64\\libnative.so",
+      "runtimeFiles": []
+    }
+  }
+}
