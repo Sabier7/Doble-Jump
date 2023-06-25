@@ -1,6 +1,6 @@
-/*
+﻿/*
  * REFERENCES
- * Copyright © 2019+ Ángel Rodríguez Ballesteros
+ * Copyright © 2019+ Jonatan David Vargas Revollo
  *
  * Distributed under the Boost Software License, version  1.0
  * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt

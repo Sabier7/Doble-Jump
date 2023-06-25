@@ -1,32 +1,31 @@
 /*
  * SAMPLE SCENE
- * Copyright © 2023+ Jonatan David vargas Revollo
+ * Copyright © 2023+ Jonatan David Vargas Revollo
+ *
  * Distributed under the Boost Software License, version  1.0
  * See documents/LICENSE.TXT or www.boost.org/LICENSE_1_0.txt
- *
- * angel.rodriguez@esne.edu
  */
 
-#include "Sample_Scene.hpp"
-#include <basics/Application>
-#include <basics/Canvas>
-#include <basics/Display>
-#include <basics/Director>
+#include "Sample_Scene.hpp"  //referencia de encabezado
+#include <basics/Application> //biblioteca base para acceder a eventos como inicializar o destruir
+#include <basics/Canvas>  // la ventana que refleja el juego
+#include <basics/Display>  // Esta clase permite configurar algunas características del display como el apagado o permanencia la iluminacion de la pantalla
+#include <basics/Director> //administra eventos el kernel y otros como el run
 #include <basics/Log>
 #include <basics/Window>
 #include <iomanip>
 #include <cstdlib>
 #include <fstream>
-#include <basics/Accelerometer>
+#include <basics/Accelerometer>  //biblioteca que permite el uso del accelerometro osea si giro el movil eso me indica y puedo accionar eventos en mi caso movimiento del jugador
 #include <basics/Text_Layout>
-#include <random>
+#include <random> //biblioteca que permite el uso de ramdom en mi caso incremento desde el 0 hasta canvas_hight menos ancho de sprite
 
 using namespace basics;
 using namespace std;
 
 namespace example
 {
-
+//inicializo las variables que necesito y si quiero declarar alguna en el hpp al igual que los eventos
     Sample_Scene::Sample_Scene()
     {
         status        = UNINITIALIZED;
@@ -35,9 +34,12 @@ namespace example
         speed         = 100;
         score         = 0;
         timer         = 0;
-
+        timer_logo    = 0;
+        active_logo   = false;
     }
-
+/**metodo que permite iniciar siertos parametros al igual que un start *
+ * @return util para tener una buena organizacion
+ */
     bool Sample_Scene::initialize ()
     {
         suspended = false;
@@ -52,25 +54,29 @@ namespace example
         display.set_prevent_sleep (false);
     }
 
-    void Sample_Scene::suspend ()
+    /**metodo que permite hacer acciones al dejar el juego en segundo plano
+    */
+     void Sample_Scene::suspend ()
     {
         suspended = true;
 
         display.set_prevent_sleep (false);
-        //accelerometer
-        Accelerometer* accelerometer = Accelerometer::get_instance();
 
+        //accelerometer se toma la instancia para posteriormente apagarlo ya que no se esta usando la app
+        Accelerometer* accelerometer = Accelerometer::get_instance();
         if (accelerometer) accelerometer->switch_off();
     }
-
+    /**Evento que permite reanudar la app al pasar por el suspend
+    */
     void Sample_Scene::resume ()
     {
         suspended = false;
 
         display.set_prevent_sleep (true);
-        //accelerometer
-        Accelerometer* accelerometer = Accelerometer::get_instance();
 
+        /**al igual que en el evento de suspende se toma la instancia que se genero para posteriormente encenderla
+         */
+        Accelerometer* accelerometer = Accelerometer::get_instance();
         if (accelerometer) accelerometer->switch_on();
     }
 
@@ -78,73 +84,67 @@ namespace example
     {
         if (!suspended && status == READY) switch (event.id)
             {
-
                 case ID(touch-started):
                 {
+                    /**Forma de acceder a los puntos en los cuales se esta tocando la pantalla muy util para acceder a las contains de los sprites
+                     */
                     float x = *event[ID(x) ].as< var::Float > ();
                     float y = *event[ID(y) ].as< var::Float > ();
-                    Jump = true;
-                    //Help
-                    if(squares[11]->contains({x,y}) &&squares[11]->is_visible())
+
+                    //Help debe tener ademas de la posicion las cordenadas precionadas el ver que sea visible ya
+                    // incluso en invisible esto aplicaria y accionaria la mecanica
+                    if(squares[13]->contains({x,y}) &&squares[13]->is_visible())
                     {
                         visibleText = !visibleText;
                     }
+
+                    if(menu_help->contains({x,y}) && menu_help->is_visible())
+                    { visibleText = !visibleText; } //hace visible en el menu el texto de ayuda
                 }
-                    //restar game
-                    /*
-                        if (!playing && gameOver)
-                        {
-                           inicio();
-                        }
-                        */
-                    // El usuario toca la pantalla
+
+                    // El usuario toca la pantalla y mantiene presionado y se mueve
                 case ID(touch-moved):
                 {
                     float x = *event[ID(x) ].as< var::Float > ();
                     float y = *event[ID(y) ].as< var::Float > ();
 
-                    if (squares[13]->contains({ x, y }) && !playing && squares[13]->is_visible())
+                    //play button
+                    if (squares[15]->contains({ x, y }) && !playing && squares[15]->is_visible())
                     {
                         Jump= true;
-                        for (int i = 0; i < 10; ++i)
-                        {
-                            squares[i]->show();
-                        }
-                        squares[13]->hide();
-                        playing = true;
+                        active_logo= true;
+                        logo->show();
+                        visibleText = false;
+                        squares[15]->hide();
+                        menu_help->hide();
                     }
+
                     //active pause
-                    if (squares[9]->contains({ x, y }) && squares[9]->is_visible())
+                    if (squares[11]->contains({ x, y }) && squares[11]->is_visible())
                     {
-
-
-                        for (int i = 0; i < 10; ++i)
+                        for (int i = 0; i < 12; ++i)
                         {
                             squares[i]->hide();
                         }
                         playing = false;
-                        squares[10]->show();
-                        squares[11]->show();
+
+                        squares[12]->show();
+                        squares[13]->show();
                     }
+
                     //reanudar partida
-                    if (squares[10]->contains({ x, y }))
+                    if (squares[12]->contains({ x, y }))
                     {
-                        for (int i = 0; i < 10; ++i)
+                        for (int i = 0; i < 12; ++i)
                         {
                             squares[i]->show();
                         }
-                        squares[10]->hide();
-                        squares[11]->hide();
+                        squares[13]->hide();
+                        squares[12]->hide();
                         visibleText = false;
                         playing = true;
                     }
 
-                    /*
-                    for (auto square : squares)
-                    {
-                        // square->set_slice (square->contains ({ x, y }) ? ID(play-menu) : ID(blue-square));
-                    }
-*/
                     break;
                 }
 
@@ -161,9 +161,14 @@ namespace example
         {
             if (load_images ()) create_sprites ();
         }
-        if(playing) {
+        if (!font)
+        {
+            Graphics_Context::Accessor context = director.lock_graphics_context();
 
-
+            if (context) { font.reset(new Raster_Font("fonts/impact.fnt", context)); }
+        }
+        if(playing)
+        {
             Accelerometer *accelerometer = Accelerometer::get_instance();
 
             if (accelerometer)
@@ -177,70 +182,68 @@ namespace example
                 squares[0]->set_position_x(squares[0]->get_position_x() + postX);
 
                 //cambio de lados
-                if (squares[0]->get_position_x() > canvas_width) { squares[0]->set_position_x(0); }
-                if (squares[0]->get_position_x() < -squares[0]->get_width()) { squares[0]->set_position_x(canvas_width); }
+                if (squares[0]->get_position_x() > canvas_width)
+                { squares[0]->set_position_x(0); }
+
+                if (squares[0]->get_position_x() < -squares[0]->get_width())
+                { squares[0]->set_position_x(canvas_width); }
 
             }
-            //impacta
-            //Point2f playerLeft = Point2f( squares[0]->get_position_x() - squares[0]->get_width()*0.5f,squares[0]->get_position_y() - squares[0]->get_height()*0.5f);
-           // Point2f playerRight = Point2f( squares[0]->get_position_x() + squares[0]->get_width()*0.5f,squares[0]->get_position_y() - squares[0]->get_height()*0.5f);
+
             Point2f playerLeft = Point2f(  squares[0]->get_left_x(),squares[0]->get_bottom_y());
-            Point2f playerRight = Point2f( squares[0]->get_right_x() ,squares[0]->get_bottom_y());
+            Point2f playerRight = Point2f( squares[0]->get_right_x() -70 ,squares[0]->get_bottom_y());
 
-            for (int i = 1; i < 9; ++i)
-            {
-                if (squares[i]->contains(playerLeft) || squares[i]->contains(playerRight))
+                for (int i = 1; i < 11; ++i)
                 {
-                   Jump = true;
-                }
-            }
-            if (squares[0]->get_position_y() > canvas_height *0.5f - 500) {
-                Jump = false;
-            }
+                    if (squares[i]->contains(playerLeft) || squares[i]->contains(playerRight) && squares[0]->get_position_y() > squares[i]->get_position_y())
+                    {
+                        Jump = true;
 
-            //salto
-            if (Jump)
+                    }
+                }
+
+
+            if (squares[0]->get_position_y() > canvas_height *0.5f -300){ Jump = false;}
+
+            //Down platform
+            if (squares[0]->get_position_y() > 400)
             {
-                //update score
-
-                float y = squares[0]->get_position_y() + (30000 * delta);
-                squares[0]->set_position_y(y);
-                if (squares[0]->get_position_y() > canvas_height * 0.5f )
+                for (int i = 1; i < 11; ++i)
                 {
-                    score++;  // Inicializar la puntuación a cero
-                    Text_Layout sample_text(*font, L"Puntos: " + to_wstring(squares[0]->get_speed_y()));
-                }
-                //Down platform
-                for (int i = 1; i < 9; ++i) {
-                    squares[i]->set_position_y(squares[i]->get_position_y() - (3000 * delta));
-                    if (squares[i]->get_position_y() < 0) {
+                    squares[i]->set_position_y(squares[i]->get_position_y() - 5);
 
-                        squares[i]->set_position_y(canvas_height);
-
+                    if (squares[i]->get_position_y() < 0)
+                    {
                         //change platform position x with a random number
                         float random_x = float(0 + rand() % (1080 - 200));
-                        squares[i]->set_position_x(random_x);
+                        squares[i]->set_position (Point2f (random_x, canvas_height));
+                        if(Jump)
+                        {
+                            score++;  // Inicializar la puntuación a cero
+                            Text_Layout sample_text(*font, L"Puntos: " + to_wstring(score));
+
+                        }
                     }
                 }
             }
 
+
+            //salto
+            if (Jump)
+            {
+                float y = squares[0]->get_position_y() + 15;
+                squares[0]->set_position_y(y);
+            }
+
             if(!Jump )
             {
-                squares[0]->set_position_y(squares[0]->get_position_y() - 1000 * delta);
-
+                squares[0]->set_position_y(squares[0]->get_position_y() - 15);
             }
 
-            if (!font) {
-                Graphics_Context::Accessor context = director.lock_graphics_context();
-
-                if (context) {
-                    font.reset(new Raster_Font("fonts/impact.fnt", context));
-                }
-            }
             //best score
-            if (score > bestScore) {
+            if (score > bestScore)
+            {
                 bestScore = score;
-
             }
             //game-over
             if (squares[0]->get_position_y() < 0)
@@ -250,10 +253,30 @@ namespace example
                     squares[i]-> hide ();
                 }
                 //muestra game-over
-                squares[12]->show();
+                squares[14]->show();
                 score = 0;
                 timer++;
                 if (timer > 80) { restart(); }
+            }
+        }
+
+        if (active_logo)
+        {
+            timer_logo++;
+
+            if (timer_logo >= 70)
+            {
+                logo->hide();
+                playing = true;
+                for (int i = 0; i < 12; ++i)
+                {
+                    squares[i]->show();
+
+                    timer_logo =0;
+                }
+                playing     = true;
+                timer_logo  =0;
+                active_logo = false;
             }
         }
     }
@@ -282,7 +305,7 @@ namespace example
                 {
                     sprite->render (*canvas);
                 }
-//score
+
                 //score
                 if (font )
                 {
@@ -303,9 +326,7 @@ namespace example
                         Text_Layout helpLayout(*font, helpText);
                         canvas->draw_text({canvas_width*0.01f, squares[11]->get_position_y() - squares[11]->get_height()}, helpLayout, LEFT);
                     }
-
                 }
-
             }
         }
     }
@@ -343,107 +364,104 @@ namespace example
         background->set_size   ({ canvas_width, canvas_height });
         background->set_anchor (BOTTOM | LEFT);
 
+
         sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(player)));
         squares[0] = sprites.back ().get ();
 
-        for (int i = 1; i < 9 ; ++i)
+        for (int i = 1; i < 11 ; ++i)
         {
             sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(platform)));
             squares[i] = sprites.back ().get ();
+
         }
 
         sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(pause)));
-        squares[9] = sprites.back ().get ();
+        squares[11] = sprites.back ().get ();
 
         sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(resume)));
+        squares[12] = sprites.back ().get ();
 
-        squares[10] = sprites.back ().get ();
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(help)));
+        squares[13] = sprites.back ().get ();//help
 
-    sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(help)));
-    squares[11] = sprites.back ().get ();
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(game-over)));
+        squares[14] = sprites.back ().get ();
 
-    sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(game-over)));
-    squares[12] = sprites.back ().get ();
-    sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(play-menu)));
-    squares[13] = sprites.back ().get ();
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(play-menu)));
+        squares[15] = sprites.back ().get ();
 
         Vector2f canvas_center{ canvas_width * .5f, canvas_height * .5f };
 
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(platform)));
+        logo = sprites.back ().get ();
+
+        sprites.emplace_back (make_shared< Sprite > (atlas.get (), ID(help-menu)));
+        menu_help = sprites.back ().get ();
         inicio();
+        logo->set_position( canvas_center);
+        logo->set_scale    (5.00f);
 
-
+        menu_help->set_position( canvas_center - Vector2f (0.f, 200.f));
+        menu_help->set_scale    (4.00f);
 
         //pause position
-        squares[9]->set_position( canvas_center);
-        squares[9]->set_scale    (2.00f);
+        squares[11]->set_position( Vector2f(canvas_width - (squares[12]->get_width()*0.5f), canvas_height- (squares[11]->get_height()*0.5f)));
+        squares[11]->set_scale    (2.00f);
 
-        //menu pause
-        squares[10]->set_position( canvas_center + Vector2f(0, squares[10]->get_height()));
-        squares[10]->set_scale    (2.00f);
+        //reanudar
+        squares[12]->set_position( canvas_center + Vector2f(0, squares[12]->get_height()));
+        squares[12]->set_scale    (2.00f);
 
 
         //Button help
-        squares[11]->set_position( canvas_center - Vector2f(0, squares[11]->get_height()));
-        squares[11]->set_scale    (2.00f);
+        squares[13]->set_position( canvas_center - Vector2f(0, squares[13]->get_height()));
+        squares[13]->set_scale    (2.00f);
 
         //game-over
-        squares[12]->set_position (canvas_center);
-        squares[12]->set_scale    (2.00f);
+        squares[14]->set_position (canvas_center);
+        squares[14]->set_scale    (2.00f);
 
-        squares[13]->set_position (canvas_center);
-        squares[13]->set_scale    (8.00f);
-//posicion de los objetos se dan desde su centro
+        squares[15]->set_position (canvas_center + Vector2f(0, 200));
+        squares[15]->set_scale    (7.00f);
+
+        //posicion de los objetos se dan desde su centro
         //plataformas
-        for (int i = 2; i < 9; ++i)
+        for (int i = 1; i < 11; ++i)
         {
             squares[i]->set_size(Size2f(300,50));
             float random_x = float(0 + rand () % (1080 - 200 ));
-            squares[i]->set_position(Vector2f(random_x, 300 * i));
+            squares[i]->set_position(Vector2f(random_x, 192 * i));
         }
-
-        squares[9]->set_position( Vector2f(canvas_width - (squares[9]->get_width()*0.5f), canvas_height- (squares[9]->get_height()*0.5f)));
-
-
-        /*
-
-        squares[1]->set_position(Vector2f(canvas_width*0.5f, 100));
-        squares[1]->set_anchor   (BOTTOM | LEFT);
-        squares[1]->set_scale    (1.00f);
-        squares[2]->set_position (canvas_center + Vector2f{ -20.f, -20.f });
-        squares[2]->set_anchor   (TOP | RIGHT);
-        squares[2]->set_scale    (1.25f);
-        squares[3]->set_position (canvas_center + Vector2f{ -500.f, -20.f });
-        squares[3]->set_anchor   (TOP | LEFT);
-        squares[3]->set_scale    (1.50f);
-
-         */
-        // postY         = squares[0]->get_position_y() + 100;
-
     }
     void Sample_Scene::restart()
     {
-            squares[13]-> show();
-            timer = 0;
-            inicio();
-            playing = false;
-        squares[12]-> hide ();
+        squares[15]-> show();
+        menu_help->show();
+        timer = 0;
+        inicio();
+        playing = false;
+        squares[14]-> hide (); //game-over invisible
     }
     void Sample_Scene::inicio()
     {
         Vector2f canvas_center{ canvas_width * .5f, canvas_height * .5f };
         //player
         squares[0]->set_position (canvas_center);
-        squares[1]->set_position (Vector2f(canvas_width*0.5f, 200 ));
-        squares[1]->set_size(Size2f(300,50));
+        for (int i = 1; i < 11; ++i)
+        {
+            squares[i]->set_size(Size2f(300,50));
+            float random_x = float(0 + rand () % (1080 - 200 ));
+            squares[i]->set_position(Vector2f(random_x, 192 * i));
+        }
+
         //hace invisible
         if(!playing)
         {
-            for (int i = 0; i < 13; ++i)
+            for (int i = 0; i < 15; ++i)
             {
                 squares[i]-> hide ();
             }
-
+            logo->hide();
         }
     }
-
 }
